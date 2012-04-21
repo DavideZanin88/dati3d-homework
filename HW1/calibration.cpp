@@ -11,60 +11,88 @@ Calibration::Calibration(string photoDir){
 
 	for(int j = 0; j < patterSizeX*patterSizeY; j++)
 		objectCoord.push_back(Point3f(j/patterSizeX*8, j%patterSizeX*8, 0.0f));
-
 }
 
 void Calibration::stereoCalibration(){
 
-	cout << "Calibro la fotocamera sinistra" << endl;
-	list<string> list = getFilenameList(this->photoDir, LEFT_CAMERA);
-	calibrateCamera(list, this->M[0], this->D[0], this->imagePoints[0]);
-
-	cout << "Calibro la fotocamera destra" << endl;
-	list = getFilenameList(this->photoDir, RIGHT_CAMERA);
-	calibrateCamera(list, this->M[1], this->D[1], this->imagePoints[1]);
+	cout << "Calibro le fotocamera" << endl;
+	calibrateCamera();
 
 	cout << "Calibrazione stereo" << endl;
 	calibrationStereoCamera();
 
+	//salva i valori delle matrici su file
+	writeMatFile("value/M0.yml", "M0", this->M[0]);
+	writeMatFile("value/M1.yml", "M1", this->M[1]);
+
+	writeMatFile("value/D0.yml", "D0", this->D[0]);
+	writeMatFile("value/D1.yml", "D1", this->D[1]);
+
+	writeMatFile("value/RR.yml", "RR", this->RR);
+	writeMatFile("value/T.yml", "T", this->T);
+	writeMatFile("value/E.yml", "E", this->E);
+	writeMatFile("value/F.yml", "F", this->F);
+
+	writeMatFile("value/R0.yml", "R0", this->R[0]);
+	writeMatFile("value/R1.yml", "R1", this->R[1]);
+
+	writeMatFile("value/P0.yml", "P0", this->P[0]);
+	writeMatFile("value/P1.yml", "P1", this->P[1]);
+
+	writeMatFile("value/Q.yml", "Q", this->Q);
+
+//	writeMatFile("value/mx0.yml", "mx0", this->m[0][0]);
+//	writeMatFile("value/my0.yml", "my0", this->m[0][1]);
+//	writeMatFile("value/mx1.yml", "mx1", this->m[1][0]);
+//	writeMatFile("value/my1.yml", "my1", this->m[1][1]);
+
 }
 
-void Calibration::calibrateCamera(list<string> l, Mat& intrinsic, Mat &distCoeffs,
-		vector<vector<Point2f> > &imagePoints){
+void Calibration::calibrateCamera(){
 
 	Size patternSize(patterSizeX, patterSizeY);
-
 	vector<vector<Point3f> > objectPoints; //vettore delle coordinate dei pti nel mondo
 
-	Mat img;
-	list<string>::iterator it;
-	for ( it = l.begin(); it != l.end(); it++){ //scorre tutta la lista di immagini
-		cout << *it << endl; //TODO debug
+	Mat imgL, imgR;
+	while (!this->io.isEmpty()){
+		io.getNext(imgL, imgR);
 
-		img = imread(this->photoDir+"/"+*it, 0);
-
-		vector<Point2f> corners;
-		if (!findChessboardCorners(img, patternSize, corners,
-				CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_NORMALIZE_IMAGE |
-				CV_CALIB_CB_FILTER_QUADS | CALIB_CB_FAST_CHECK )){
-			cout << "Corner non trovati: "+*it << endl;
+		vector<Point2f> corners[2];
+		if (!findChessboardCorners(imgL, patternSize, corners[0],
+				CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_NORMALIZE_IMAGE)){
+			cout << "Corner non trovati " << endl;
 			continue;
 		}
 
-		img = imread(this->photoDir+"/"+*it, CV_8UC1);
-		cornerSubPix(img, corners, Size(11,11), Size(-1,-1),
+		cornerSubPix(imgL, corners[0], Size(11,11), Size(-1,-1),
 				TermCriteria(CV_TERMCRIT_ITER+CV_TERMCRIT_EPS, 30, 0.01));
 
-		imagePoints.push_back(corners);
+
+
+		if (!findChessboardCorners(imgR, patternSize, corners[1],
+				CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_NORMALIZE_IMAGE)){
+			cout << "Corner non trovati " << endl;
+			continue;
+		}
+
+		cornerSubPix(imgR, corners[1], Size(11,11), Size(-1,-1),
+				TermCriteria(CV_TERMCRIT_ITER+CV_TERMCRIT_EPS, 30, 0.01));
+
+		this->imagePoints[0].push_back(corners[0]);
+		this->imagePoints[1].push_back(corners[1]);
 		objectPoints.push_back(objectCoord);
+
+		cout << "end" << endl;
 	}
 
-	intrinsic = Mat(3, 3, CV_32FC1);
+	M[0] = Mat(3, 3, CV_32FC1);
+	M[1] = Mat(3, 3, CV_32FC1);
 	vector<Mat> rvecs;
 	vector<Mat> tvecs;
-
-	cv::calibrateCamera(objectPoints, imagePoints, img.size(), intrinsic, distCoeffs, rvecs, tvecs);
-
+	cout << " fotocamera sx" << endl;
+	cv::calibrateCamera(objectPoints, imagePoints[0], imgL.size(), M[0], D[0], rvecs, tvecs);
+	cout << " fotocamera dx" << endl;
+	cv::calibrateCamera(objectPoints, imagePoints[1], imgL.size(), M[1], D[1], rvecs, tvecs);
 }
 
 
@@ -94,7 +122,7 @@ void Calibration::calibrationStereoCamera(){
 
 
 	stereoRectify(M[0], D[0], M[1], D[1], img.size(), RR, T, R[0], R[1], P[0], P[1], Q,
-			CALIB_ZERO_DISPARITY, 0, img.size(), &roi[0], &roi[1]);
+			CALIB_ZERO_DISPARITY, 0, img.size());
 
 	initUndistortRectifyMap(M[0], D[0], R[0], P[0], img.size(), CV_16SC2, m[0][0], m[0][1]);
 	initUndistortRectifyMap(M[1], D[1], R[1], P[1], img.size(), CV_16SC2, m[1][0], m[1][1]);
@@ -113,8 +141,4 @@ void Calibration::rectfy(const cv::Mat& img, cv::Mat& rectfy, CameraType type){
 
 Mat Calibration::getQ(){
 	return this->Q;
-}
-
-Rect Calibration::getRoi(){
-	return this->roi[0] & this->roi[1];
 }

@@ -18,24 +18,23 @@ class Calibration{
 		Calibration(std::string photoDir);
 
 		void stereoCalibration();
-		void calibrateCamera(std::list<std::string> l, cv::Mat& intrinsic,
-				cv::Mat& distCoeffs, std::vector<std::vector<cv::Point2f> >& imagePoints);
+		void calibrateCamera();
 		void calibrationStereoCamera();
 		void rectfy(const cv::Mat& img, cv::Mat& rectfy, CameraType type);
 
 		cv::Mat getQ();
-		cv::Rect getRoi();
 
 	private:
 		std::string photoDir;
 		cv::Mat 	M[2], D[2];
 		cv::Mat 	RR, T, E, F;
 		cv::Mat 	R[2], P[2], Q;
-		cv::Rect 	roi[2];
 
 		std::vector<std::vector<cv::Point2f> > imagePoints[2];
 		std::vector<cv::Point3f> objectCoord;
 		cv::Mat m[2][2];
+
+		PhotoIO io;
 
 	public:
 		static const int patterSizeX = 7;
