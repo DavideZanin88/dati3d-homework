@@ -10,7 +10,6 @@ Disparity::Disparity(Calibration& calib):calib(calib){
 }
 
 void Disparity::computeDisparityImage(const string& imgNameL, const string& imgNameR, Mat& disparity){
-
 	Mat imgL = imread(imgNameL, CV_8UC1);
 	Mat imgR = imread(imgNameR, CV_8UC1);
 
@@ -21,15 +20,12 @@ void Disparity::computeDisparityImage(const string& imgNameL, const string& imgN
 	initSGBM(imgL);
 
 	sgbm(rectL, rectR, disparity);
-
 }
 
 void Disparity::computeRangeImage(const string& imgNameL, const string& imgNameR, Mat& range){
-
 	Mat disparity;
 	computeDisparityImage(imgNameL, imgNameR, disparity);
 	disparity.convertTo(range, CV_8U, 255/((sgbm.numberOfDisparities)*16.));
-
 }
 
 
@@ -43,8 +39,8 @@ void Disparity::initSGBM(cv::Mat img){
 	sgbm.minDisparity = 16;
 	sgbm.numberOfDisparities = numberOfDisparities;
 	sgbm.uniquenessRatio = 5;
-	sgbm.speckleWindowSize = 300;
-	sgbm.speckleRange = 64;
+	sgbm.speckleWindowSize = 250;
+	sgbm.speckleRange = 48;
 	sgbm.disp12MaxDiff = -1;
 	sgbm.fullDP = 1;
 }

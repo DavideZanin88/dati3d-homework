@@ -7,11 +7,6 @@ left126.ppm
 left128.ppm
 left131.ppm
 left137.ppm
-left237.ppm
-left246.ppm
-left247.ppm
-left250.ppm
-left253.ppm
 left276.ppm
 left277.ppm
 left278.ppm

@@ -8,17 +8,15 @@ using namespace std;
 
 Calibration::Calibration(string photoDir){
 	this->photoDir = photoDir;
+	this->patternSize = Size(patterSizeX, patterSizeY);
 
 	for(int j = 0; j < patterSizeX*patterSizeY; j++)
 		objectCoord.push_back(Point3f(j/patterSizeX*8, j%patterSizeX*8, 0.0f));
 }
 
-void Calibration::stereoCalibration(){
+void Calibration::calibration(){
 
-	cout << "Calibro le fotocamera" << endl;
 	calibrateCamera();
-
-	cout << "Calibrazione stereo" << endl;
 	calibrationStereoCamera();
 
 	//salva i valori delle matrici su file
@@ -30,8 +28,8 @@ void Calibration::stereoCalibration(){
 
 	writeMatFile("value/RR.yml", "RR", this->RR);
 	writeMatFile("value/T.yml", "T", this->T);
-	writeMatFile("value/E.yml", "E", this->E);
-	writeMatFile("value/F.yml", "F", this->F);
+//	writeMatFile("value/E.yml", "E", this->E);
+//	writeMatFile("value/F.yml", "F", this->F);
 
 	writeMatFile("value/R0.yml", "R0", this->R[0]);
 	writeMatFile("value/R1.yml", "R1", this->R[1]);
@@ -49,50 +47,43 @@ void Calibration::stereoCalibration(){
 }
 
 void Calibration::calibrateCamera(){
-
-	Size patternSize(patterSizeX, patterSizeY);
 	vector<vector<Point3f> > objectPoints; //vettore delle coordinate dei pti nel mondo
 
 	Mat imgL, imgR;
 	while (!this->io.isEmpty()){
 		io.getNext(imgL, imgR);
-
 		vector<Point2f> corners[2];
-		if (!findChessboardCorners(imgL, patternSize, corners[0],
-				CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_NORMALIZE_IMAGE)){
-			cout << "Corner non trovati " << endl;
-			continue;
+
+		if (findCorner(imgL, corners[0]) && findCorner(imgR, corners[1])){
+			this->imagePoints[0].push_back(corners[0]);
+			this->imagePoints[1].push_back(corners[1]);
+			objectPoints.push_back(objectCoord);
 		}
-
-		cornerSubPix(imgL, corners[0], Size(11,11), Size(-1,-1),
-				TermCriteria(CV_TERMCRIT_ITER+CV_TERMCRIT_EPS, 30, 0.01));
-
-
-
-		if (!findChessboardCorners(imgR, patternSize, corners[1],
-				CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_NORMALIZE_IMAGE)){
-			cout << "Corner non trovati " << endl;
-			continue;
-		}
-
-		cornerSubPix(imgR, corners[1], Size(11,11), Size(-1,-1),
-				TermCriteria(CV_TERMCRIT_ITER+CV_TERMCRIT_EPS, 30, 0.01));
-
-		this->imagePoints[0].push_back(corners[0]);
-		this->imagePoints[1].push_back(corners[1]);
-		objectPoints.push_back(objectCoord);
-
-		cout << "end" << endl;
 	}
 
 	M[0] = Mat(3, 3, CV_32FC1);
 	M[1] = Mat(3, 3, CV_32FC1);
 	vector<Mat> rvecs;
 	vector<Mat> tvecs;
-	cout << " fotocamera sx" << endl;
-	cv::calibrateCamera(objectPoints, imagePoints[0], imgL.size(), M[0], D[0], rvecs, tvecs);
-	cout << " fotocamera dx" << endl;
-	cv::calibrateCamera(objectPoints, imagePoints[1], imgL.size(), M[1], D[1], rvecs, tvecs);
+
+	double rms = cv::calibrateCamera(objectPoints, imagePoints[0], imgL.size(), M[0], D[0], rvecs, tvecs);
+	cout << "Re-projection error calibrazione fotocamera sx: " << rms << endl;
+	rms = cv::calibrateCamera(objectPoints, imagePoints[1], imgL.size(), M[1], D[1], rvecs, tvecs);
+	cout << "Re-projection error calibrazione fotocamera dx: " << rms << endl;
+}
+
+
+bool Calibration::findCorner(const Mat& img, vector<Point2f>& corners){
+	if (!findChessboardCorners(img, this->patternSize, corners,
+			CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_NORMALIZE_IMAGE)){
+		cout << "Corner non trovati " << endl;
+		return false;
+	}
+
+	cornerSubPix(img, corners, Size(11,11), Size(-1,-1),
+			TermCriteria(CV_TERMCRIT_ITER+CV_TERMCRIT_EPS, 30, 0.01));
+
+	return true;
 }
 
 
@@ -112,13 +103,13 @@ void Calibration::calibrationStereoCamera(){
 		objectPoints.push_back(objectCoord);
 	}
 
+	Mat E, F;
 	Mat img = imread("disparity/left.ppm", CV_8UC1);
-
-	double rms = stereoCalibrate(objectPoints, imagePoints[0], imagePoints[1], M[0], D[0], M[1], D[1],
-			img.size(), RR, T, E, F,
+	double rms = stereoCalibrate(objectPoints, imagePoints[0], imagePoints[1], M[0],
+			D[0], M[1], D[1], img.size(), RR, T, E, F,
 			cvTermCriteria(CV_TERMCRIT_ITER+CV_TERMCRIT_EPS, 100, 1e-5), CV_CALIB_FIX_INTRINSIC);
 
-	cout << "done with RMS error=" << rms << endl;
+	cout << "Re-projection error calibrazione stereo: " << rms << endl;
 
 
 	stereoRectify(M[0], D[0], M[1], D[1], img.size(), RR, T, R[0], R[1], P[0], P[1], Q,
@@ -131,12 +122,14 @@ void Calibration::calibrationStereoCamera(){
 
 void Calibration::rectfy(const cv::Mat& img, cv::Mat& rectfy, CameraType type){
 	int camera;
-	if (type == LEFT_CAMERA)
-		camera = 0;
-	else
-		camera = 1;
-
+	type == LEFT_CAMERA ? camera = 0: camera = 1;
 	remap(img, rectfy, m[camera][0], m[camera][1], INTER_LINEAR);
+}
+
+void Calibration::undistort(const Mat& img, Mat& undistort, CameraType type){
+	int camera;
+	type == LEFT_CAMERA ? camera = 0: camera = 1;
+	cv::undistort(img, undistort, M[camera], D[camera]);
 }
 
 Mat Calibration::getQ(){

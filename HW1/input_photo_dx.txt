@@ -7,11 +7,6 @@ right126.ppm
 right128.ppm
 right131.ppm
 right137.ppm
-right237.ppm
-right246.ppm
-right247.ppm
-right250.ppm
-right253.ppm
 right276.ppm
 right277.ppm
 right278.ppm

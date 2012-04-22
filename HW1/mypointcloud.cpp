@@ -1,6 +1,8 @@
 
 #include "mypointcloud.h"
 
+#include <pcl/filters/voxel_grid.h>
+
 using namespace std;
 using namespace cv;
 using namespace pcl;
@@ -49,10 +51,11 @@ void MyPointCloud::visualize(const string& imgNameL, const string& imgNameR){
 	cloud->height = 1;
 
 	visualization::PCLVisualizer viewer("PCL Viewer");
-
 	viewer.setBackgroundColor (0, 0, 0);
 	viewer.addCoordinateSystem (0.1);
 	viewer.addText ("HW1 cloud", 10, 10);
+
+	io::savePCDFileASCII("result/cloud.pcd", *cloud);
 	visualization::PointCloudColorHandlerRGBField<PointXYZRGB> rgb(cloud);
 	viewer.addPointCloud<PointXYZRGB> (cloud, rgb, "HW1 cloud");
 
