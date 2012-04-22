@@ -41,7 +41,6 @@ void loadPhotoName(std::list<std::string>& list, const std::string& filename){
 	if (iFile.is_open()){
 	    while ( iFile.good() ){
 	      getline (iFile,line);
-	      cout << line << endl;
 	      if (line.size() > 1)
 	    	  list.push_back(line);
 	    }

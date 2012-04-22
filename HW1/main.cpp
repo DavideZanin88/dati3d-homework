@@ -24,24 +24,24 @@ int main(int argc, char **argv){
 	cout << "Calcolo e visualizzazione della point cloud..." << endl;
 	Disparity disp(calib);
 
-	Mat imgL = imread("calibration_set/left117.ppm");
-	Mat imgR = imread("calibration_set/right117.ppm");
+	Mat imgL = imread("disparity/left.ppm");
+	Mat imgR = imread("disparity/right.ppm");
 	Mat result;
 
 	//prova undistort
 	calib.undistort(imgL, result, LEFT_CAMERA);
-	imwrite("result/undistortLeft117.ppm", result);
+	imwrite("result/undistortLeft.ppm", result);
 
 	calib.undistort(imgR, result, RIGHT_CAMERA);
-	imwrite("result/undistortRight117.ppm", result);
+	imwrite("result/undistortRight.ppm", result);
 	//-----
 
 	//prova la rettifica
 	calib.rectfy(imgL, result, LEFT_CAMERA);
-	imwrite("result/rectfyLeft117.ppm", result);
+	imwrite("result/rectfyLeft.ppm", result);
 
 	calib.rectfy(imgL, result, RIGHT_CAMERA);
-	imwrite("result/rectfyRight117.ppm", result);
+	imwrite("result/rectfyRight.ppm", result);
 	//------
 
 	//prova disparity map
@@ -58,8 +58,6 @@ int main(int argc, char **argv){
 
 	MyPointCloud point(calib, disp);
 	point.visualize("disparity/left.ppm", "disparity/right.ppm");
-
-	cv::waitKey(0);
 }
 
 
