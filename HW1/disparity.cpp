@@ -41,7 +41,6 @@ void Disparity::computeRangeImage(const string& imgNameL, const string& imgNameR
 		}
 	}
 	float step = 255.0/fabs(maxZ-minZ);
-	cout << minZ << " " << maxZ << " " << step << " " << endl;
 
 	Mat new3D(recons3D.size(), CV_8UC3);
 	range = new3D;
@@ -55,11 +54,10 @@ void Disparity::computeRangeImage(const string& imgNameL, const string& imgNameR
 				range.at<Vec3b>(r,c)[1] = z;
 				range.at<Vec3b>(r,c)[2] = z;
 			}else{
-				range.at<Vec3b>(r,c)[0] = 0;
-				range.at<Vec3b>(r,c)[1] = 0;
-				range.at<Vec3b>(r,c)[2] = 0;
+				range.at<Vec3b>(r,c)[0] = 255;
+				range.at<Vec3b>(r,c)[1] = 255;
+				range.at<Vec3b>(r,c)[2] = 255;
 			}
-
 		}
 	}
 
@@ -67,17 +65,17 @@ void Disparity::computeRangeImage(const string& imgNameL, const string& imgNameR
 
 
 void Disparity::initSGBM(cv::Mat img){
-	int numberOfDisparities = ((img.size().width/8) + 15) & -16; // default width/8
+	int numberOfDisparities = 16*8;
 	sgbm.preFilterCap = 4;
-	sgbm.SADWindowSize =  3;
+	sgbm.SADWindowSize =  9;
 	int cn = img.channels();
 	sgbm.P1 = 8*cn*sgbm.SADWindowSize*sgbm.SADWindowSize;
 	sgbm.P2 = 32*cn*sgbm.SADWindowSize*sgbm.SADWindowSize;
 	sgbm.minDisparity = 16;
 	sgbm.numberOfDisparities = numberOfDisparities;
 	sgbm.uniquenessRatio = 5;
-	sgbm.speckleWindowSize = 250;
-	sgbm.speckleRange = 48;
+	sgbm.speckleWindowSize = 200;
+	sgbm.speckleRange = 32;
 	sgbm.disp12MaxDiff = -1;
 	sgbm.fullDP = 1;
 }

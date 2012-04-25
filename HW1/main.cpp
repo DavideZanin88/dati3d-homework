@@ -47,7 +47,9 @@ int main(int argc, char **argv){
 	//prova disparity map
 	Mat disparity;
 	disp.computeDisparityImage("disparity/left.ppm", "disparity/right.ppm", disparity);
-	imwrite("result/disparity.jpg", disparity);
+	Mat disparityNorm;
+	normalize(disparity, disparityNorm, 0, 256, CV_MINMAX, CV_8UC1);
+	imwrite("result/disparity.jpg", disparityNorm);
 	//-----
 
 	//prova range immage

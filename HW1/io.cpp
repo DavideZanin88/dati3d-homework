@@ -65,13 +65,9 @@ list<string> getFilenameList(string dirName, CameraType type){
 
 	while ((file = readdir(dir)) != NULL){
 		if (endWith(file->d_name, extension.c_str()) && startWith(file->d_name, startName.c_str())){
-//			cout << file->d_name << endl; //todo debug
 			std::list<string>::iterator it;
 			for (it = list.begin(); it != list.end() && it->compare(file->d_name) < 0; it++){
-//				cout << *it << " ";
 			}
-//			cout << endl;
-
 			list.insert(it, file->d_name);
 		}
 	}

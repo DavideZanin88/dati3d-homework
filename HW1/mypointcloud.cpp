@@ -29,7 +29,7 @@ void MyPointCloud::visualize(const string& imgNameL, const string& imgNameR){
 		for (int c = 0; c < recons3D.cols; c++){
 
 			Vec3f xyzPoint = recons3D.at<Vec3f>(r, c);
-			if(fabs(xyzPoint[2]) > maxZ){
+			if(fabs(xyzPoint[2]) >= maxZ){
 				continue;
 			}
 
