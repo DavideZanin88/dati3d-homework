@@ -30,30 +30,30 @@ int main(int argc, char **argv){
 
 	//prova undistort
 	calib.undistort(imgL, result, LEFT_CAMERA);
-	imwrite("result/undistortLeft.ppm", result);
+	imwrite("result/undistortLeft.jpg", result);
 
 	calib.undistort(imgR, result, RIGHT_CAMERA);
-	imwrite("result/undistortRight.ppm", result);
+	imwrite("result/undistortRight.jpg", result);
 	//-----
 
 	//prova la rettifica
 	calib.rectfy(imgL, result, LEFT_CAMERA);
-	imwrite("result/rectfyLeft.ppm", result);
+	imwrite("result/rectfyLeft.jpg", result);
 
 	calib.rectfy(imgL, result, RIGHT_CAMERA);
-	imwrite("result/rectfyRight.ppm", result);
+	imwrite("result/rectfyRight.jpg", result);
 	//------
 
 	//prova disparity map
 	Mat disparity;
 	disp.computeDisparityImage("disparity/left.ppm", "disparity/right.ppm", disparity);
-	imwrite("result/disparity.ppm", disparity);
+	imwrite("result/disparity.jpg", disparity);
 	//-----
 
 	//prova range immage
 	Mat range;
 	disp.computeRangeImage("disparity/left.ppm", "disparity/right.ppm", range);
-	imwrite("result/range.ppm", range);
+	imwrite("result/range.jpg", range);
 	//---
 
 	MyPointCloud point(calib, disp);

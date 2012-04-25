@@ -25,7 +25,44 @@ void Disparity::computeDisparityImage(const string& imgNameL, const string& imgN
 void Disparity::computeRangeImage(const string& imgNameL, const string& imgNameR, Mat& range){
 	Mat disparity;
 	computeDisparityImage(imgNameL, imgNameR, disparity);
-	disparity.convertTo(range, CV_8U, 255/((sgbm.numberOfDisparities)*16.));
+
+	Mat recons3D;
+	reprojectImageTo3D(disparity, recons3D, calib.getQ(), true);
+
+	//calcolac i valori max e min di z
+	float minZ = +INFINITY, maxZ = -INFINITY;
+	for (int r = 0; r < recons3D.rows; r++){
+		for (int c = 0; c < recons3D.cols; c++){
+			float z = fabs(recons3D.at<Vec3f>(r,c)[2]);
+			if (z < minZ)
+				minZ = z;
+			if (z > maxZ && z < 10000)
+				maxZ = z;
+		}
+	}
+	float step = 255.0/fabs(maxZ-minZ);
+	cout << minZ << " " << maxZ << " " << step << " " << endl;
+
+	Mat new3D(recons3D.size(), CV_8UC3);
+	range = new3D;
+	for (int r = 0; r < recons3D.rows; r++){
+		for (int c = 0; c < recons3D.cols; c++){
+			float z = fabs(recons3D.at<Vec3f>(r,c)[2]);
+
+			if (z < 10000){
+				z = fabs(step*(z-minZ));
+				range.at<Vec3b>(r,c)[0] = z;
+				range.at<Vec3b>(r,c)[1] = z;
+				range.at<Vec3b>(r,c)[2] = z;
+			}else{
+				range.at<Vec3b>(r,c)[0] = 0;
+				range.at<Vec3b>(r,c)[1] = 0;
+				range.at<Vec3b>(r,c)[2] = 0;
+			}
+
+		}
+	}
+
 }
 
 

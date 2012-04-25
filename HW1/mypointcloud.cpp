@@ -24,12 +24,12 @@ void MyPointCloud::visualize(const string& imgNameL, const string& imgNameR){
 	reprojectImageTo3D(disparity, recons3D, calib.getQ(), true);
 	PointCloud<PointXYZRGB>::Ptr cloud (new PointCloud<PointXYZRGB>);
 
-	const double max = 80;
-	for (int r = 0; r < disparity.rows; r++){
-		for (int c = 0; c < disparity.cols; c++){
+	const double maxZ = 10000;
+	for (int r = 0; r < recons3D.rows; r++){
+		for (int c = 0; c < recons3D.cols; c++){
 
 			Vec3f xyzPoint = recons3D.at<Vec3f>(r, c);
-			if(fabs(xyzPoint[2]) > max){
+			if(fabs(xyzPoint[2]) > maxZ){
 				continue;
 			}
 
