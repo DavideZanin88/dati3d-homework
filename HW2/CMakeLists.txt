@@ -10,5 +10,6 @@ include_directories(${PCL_INCLUDE_DIRS} include)
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
-add_executable (hw2 src/main.cpp src/mypointcloud.cpp src/cloud_io.cpp src/extract_object.cpp)
+add_executable (hw2 src/main.cpp src/mypointcloud.cpp src/cloud_io.cpp 
+				    src/extract_object.cpp src/registration.cpp)
 target_link_libraries(hw2 ${PCL_LIBRARIES})

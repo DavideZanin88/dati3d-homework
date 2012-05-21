@@ -161,7 +161,7 @@ PointCloudPtr ExtractObject::segmentation(PointCloudPtr cloud, double threshold)
 
 	cloud_filtered = cloud;
 	int i=0, nr_points = (int) cloud_filtered->points.size ();
-	while (cloud_filtered->points.size () > 0.9 * nr_points){
+	while (cloud_filtered->points.size () > 0.7 * nr_points){
 		seg.setInputCloud((*cloud_filtered).makeShared());
 		seg.segment (*inliers, *coefficients);
 
@@ -227,7 +227,7 @@ bool ExtractObject::isCableCorrect(PointCloudPtr pioli, PointCloudPtr cable){
 	int inliers = 0;
 	for(int i = 0; i < cable->points.size(); i++){
 		PointXYZRGB p = cable->points[i];
-		cout << p.x << " " << p.y << " " << p.z << endl;
+//		cout << p.x << " " << p.y << " " << p.z << endl;
 		if (p.x > minX && p.x < maxX
 				&& p.y > minY && p.y < maxY
 				&& p.z > minZ && p.z < maxZ){
@@ -242,7 +242,7 @@ bool ExtractObject::isCableCorrect(PointCloudPtr pioli, PointCloudPtr cable){
 	cout << inliers << " " << cable->points.size() << endl;
 	cout << (float)inliers/(float)cable->points.size() << endl;
 
-	return true;
+	return (float)inliers/(float)cable->points.size() >= 0.05;
 }
 
 

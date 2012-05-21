@@ -22,9 +22,11 @@ public:
 
 	static bool isCableCorrect(PointCloudPtr pioli, PointCloudPtr cable);
 
+	static PointCloudPtr segmentation(PointCloudPtr cloud, double threshold);
+
 
 private:
-	static PointCloudPtr segmentation(PointCloudPtr cloud, double threshold);
+
 
 	static std::vector<pcl::PointIndices> clusterization(PointCloudPtr cloud, double tolerance, double min, double max);
 

@@ -10,6 +10,7 @@
 #include <pcl/filters/voxel_grid.h>
 
 #include "my_datatype.h"
+#include "extract_object.h"
 
 class CloudIO{
 
@@ -21,7 +22,7 @@ public:
 	 * - rimuove il tavolo
 	 * - applica un filtro voxel
 	 */
-	static pcl::PointCloud<pcl::PointXYZRGB>::Ptr loadPointCloud(std::string path);
+	static pcl::PointCloud<pcl::PointXYZRGB>::Ptr loadPointCloud(std::string path, bool isRef);
 
 
 	/**

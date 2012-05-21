@@ -10,6 +10,7 @@
 #include "cloud_io.h"
 #include "my_datatype.h"
 #include "extract_object.h"
+#include "registration.h"
 
 
 using namespace std;
@@ -22,22 +23,31 @@ int main(int argc, char **argv){
 //	pcl::console::setVerbosityLevel(console::L_VERBOSE);
 
 
-//	PointCloudPtr cable02 = CloudIO::loadPointCloud("dataset/cable02/inliers.pcd");
+	PointCloudPtr cable02 = CloudIO::loadPointCloud("dataset/cable03/inliers.pcd", false);
 
 
 	//carica cable
-	PointCloudPtr ref = CloudIO::loadPointCloud("dataset/correct02/inliers.pcd");
+	PointCloudPtr ref = CloudIO::loadPointCloud("dataset/correct02/inliers.pcd", true);
 
 	cout << "Avvia registrazione" << endl;
-//	PointCloud<PointXYZRGB>::Ptr reg = MyPointCloud::pclRegister(cable02, ref);
-	PointCloudPtr reg = ref; //TODO deve essere quella registrata!
+	PointCloud<PointXYZRGB>::Ptr reg = myRegistration::registration(cable02, ref);
+
+
+	CloudIO::visualize(reg, "registrata");
+//	CloudIO::visualize(ref, "ref", reg, "reg");
+
+//	PointCloudPtr reg = ref; //TODO deve essere quella registrata!
 //	CloudIO::visualize(reg, "registrata");
 
 
 	PointCloudPtr pioli = ExtractObject::extractPioli(reg);
 	PointCloudPtr cable = ExtractObject::extractCable(reg);
 
-	ExtractObject::isCableCorrect(pioli, cable);
+	if (ExtractObject::isCableCorrect(pioli, cable)){
+		cout << "SI" << endl;
+	}else{
+		cout << "NO" << endl;
+	}
 
 //	CloudIO::visualize(cable, "cable");
 

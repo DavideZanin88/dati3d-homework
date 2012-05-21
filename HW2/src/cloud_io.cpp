@@ -6,7 +6,7 @@ using namespace pcl;
 
 
 
-PointCloud<PointXYZRGB>::Ptr CloudIO::loadPointCloud(string path){
+PointCloud<PointXYZRGB>::Ptr CloudIO::loadPointCloud(string path, bool isRef){
 
 	PointCloud<PointXYZRGB>::Ptr cloud(new PointCloud<PointXYZRGB>);
 
@@ -18,11 +18,16 @@ PointCloud<PointXYZRGB>::Ptr CloudIO::loadPointCloud(string path){
 	cloud->width = cloud->size();
 	cloud->height = 1;
 
-	//sposta la point cloud in modo che il centroide si trovi in (0,0,0)
-	Eigen::Vector4f centroid;
-	compute3DCentroid (*cloud, centroid);
-	PointCloud<PointXYZRGB>::Ptr cloud_xyz_demean (new PointCloud<PointXYZRGB>);
-	demeanPointCloud<PointXYZRGB> (*cloud, centroid, *cloud_xyz_demean);
+	//se è la point cloud di riferimento sposta in modo che il centroide si trovi in (0,0,0)
+//	if (isRef){
+		Eigen::Vector4f centroid;
+		compute3DCentroid (*cloud, centroid);
+		PointCloud<PointXYZRGB>::Ptr cloud_xyz_demean (new PointCloud<PointXYZRGB>);
+		demeanPointCloud<PointXYZRGB> (*cloud, centroid, *cloud_xyz_demean);
+		cloud = cloud_xyz_demean;
+//	}
+
+//	cloud = ExtractObject::segmentation(cloud, 0.05);
 
 	//rimuove il tavolo
 	PointCloud<PointXYZRGB>::Ptr cloud_clean (new PointCloud<PointXYZRGB>);
@@ -30,14 +35,15 @@ PointCloud<PointXYZRGB>::Ptr CloudIO::loadPointCloud(string path){
 	range_cond->addComparison(FieldComparison<PointXYZRGB>::ConstPtr
 			(new FieldComparison<PointXYZRGB> ("z", ComparisonOps::LE, 0)));
 	ConditionalRemoval<PointXYZRGB> condrem (range_cond);
-	condrem.setInputCloud (cloud_xyz_demean);
+	condrem.setInputCloud (cloud);
 	condrem.filter (*cloud_clean);
+	cloud = cloud_clean;
 
 	//applica un filtro voxel
 	PointCloud<PointXYZRGB>::Ptr cloud_filtered(new PointCloud<PointXYZRGB>);
 	VoxelGrid<PointXYZRGB> sor;
-	sor.setInputCloud (cloud_clean);
-	sor.setLeafSize (0.15f, 0.15f, 0.15f);
+	sor.setInputCloud (cloud);
+	sor.setLeafSize (0.2f, 0.2f, 0.2f);
 	sor.filter (*cloud_filtered);
 
 	cout << "# point: " << cloud_filtered->size() << endl;
