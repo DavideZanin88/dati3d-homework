@@ -42,8 +42,9 @@ PointCloudPtr myRegistration::registration(PointCloudPtr src, PointCloudPtr targ
 	sac.setTargetFeatures(targetFPFH);
 
 	sac.setMinSampleDistance(10);			//TODO sperimentare
-	sac.setMaximumIterations(75);			// un po' con questi
-	sac.setMaxCorrespondenceDistance(150);	// parametri
+	sac.setMaximumIterations(100);			// un po' con questi
+//	sac.setMaxCorrespondenceDistance(150);	// parametri
+	sac.setTransformationEpsilon(0.2);
 
 	sac.align(*aligned);
 	cout << " OK!" << endl;
@@ -60,8 +61,8 @@ PointCloudPtr myRegistration::registration(PointCloudPtr src, PointCloudPtr targ
 	icp.setInputCloud(aligned);
 	icp.setInputTarget(target);
 	icp.setMaxCorrespondenceDistance(100);		//TODO sperimentare!
-	icp.setMaximumIterations(150);
-	icp.setTransformationEpsilon(0.0001);
+	icp.setMaximumIterations(500);
+	icp.setTransformationEpsilon(0.0005);
 	icp.setRANSACOutlierRejectionThreshold(0.3); //-----
 
 	PointCloudPtr aligned2(new PointCloud<PointXYZRGB>);
@@ -126,7 +127,7 @@ PointCloudPtr myRegistration::detectKeypoints(PointCloudPtr cloud){
 
 	search::KdTree<PointXYZRGB>::Ptr tree (new search::KdTree<PointXYZRGB> ());
 	sift_detect.setSearchMethod(tree);
-	sift_detect.setScales (0.1, 6, 10);     //TODO questi 4 parametri non li ho mai cambiati
+	sift_detect.setScales (0.05, 3, 5);     //TODO questi 4 parametri non li ho mai cambiati
 	sift_detect.setMinimumContrast (0.5);	// e non ho idea di come vadano impostati!
 	sift_detect.setInputCloud (cloud);
 

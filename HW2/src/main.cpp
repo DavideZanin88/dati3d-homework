@@ -33,13 +33,6 @@ int main(int argc, char **argv){
 	PointCloud<PointXYZRGB>::Ptr reg = myRegistration::registration(cable02, ref);
 
 
-	CloudIO::visualize(reg, "registrata");
-//	CloudIO::visualize(ref, "ref", reg, "reg");
-
-//	PointCloudPtr reg = ref; //TODO deve essere quella registrata!
-//	CloudIO::visualize(reg, "registrata");
-
-
 	PointCloudPtr pioli = ExtractObject::extractPioli(reg);
 	PointCloudPtr cable = ExtractObject::extractCable(reg);
 
