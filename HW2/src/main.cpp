@@ -6,11 +6,9 @@
 #include <pcl/common/centroid.h>
 
 
-#include "mypointcloud.h"
 #include "cloud_io.h"
-#include "my_datatype.h"
-#include "extract_object.h"
-#include "registration.h"
+#include "ref_cloud.h"
+
 
 
 using namespace std;
@@ -18,22 +16,36 @@ using namespace pcl;
 
 int main(int argc, char **argv){
 
+	const string REF_CLOUD_PATH = "dataset/correct02/inliers.pcd";
+
 	cout << "Avvio hw2..." << endl;
 
 //	pcl::console::setVerbosityLevel(console::L_VERBOSE);
 
 
-	PointCloudPtr cable02 = CloudIO::loadPointCloud("dataset/cable03/inliers.pcd", false);
+	if (argc < 3){
+		cout << "Specificare la cloud di input!" << endl;
+		return -1;
+	}
+
+	PointCloudPtr cable02 = CloudIO::loadPointCloud(argv[1]);
 
 
 	//carica cable
-	PointCloudPtr ref = CloudIO::loadPointCloud("dataset/correct02/inliers.pcd", true);
+//	PointCloudPtr ref = CloudIO::loadPointCloud("dataset/correct02/inliers.pcd", true);
+	RefCloud refCloud(REF_CLOUD_PATH);
 
-	cout << "Avvia registrazione" << endl;
-	PointCloud<PointXYZRGB>::Ptr reg = myRegistration::registration(cable02, ref);
+	PointCloud<PointXYZRGB>::Ptr reg;
+	if (strcmp(argv[2], "true") == 0){
+		cout << "Avvia registrazione" << endl;
+		reg = refCloud.registration(cable02);
+	}else
+		reg = cable02;
+
+	PointCloudPtr pioli = ExtractObject::extractPioli2(reg);
+	CloudIO::visualize(reg, "tutto", pioli, "pioli");
 
 
-	PointCloudPtr pioli = ExtractObject::extractPioli(reg);
 	PointCloudPtr cable = ExtractObject::extractCable(reg);
 
 	if (ExtractObject::isCableCorrect(pioli, cable)){

@@ -6,7 +6,7 @@ using namespace pcl;
 
 
 
-PointCloud<PointXYZRGB>::Ptr CloudIO::loadPointCloud(string path, bool isRef){
+PointCloudPtr CloudIO::loadPointCloud(const string& path){
 
 	PointCloud<PointXYZRGB>::Ptr cloud(new PointCloud<PointXYZRGB>);
 
@@ -40,15 +40,7 @@ PointCloud<PointXYZRGB>::Ptr CloudIO::loadPointCloud(string path, bool isRef){
 	cloud = cloud_clean;
 
 	//applica un filtro voxel
-	PointCloud<PointXYZRGB>::Ptr cloud_filtered(new PointCloud<PointXYZRGB>);
-	VoxelGrid<PointXYZRGB> sor;
-	sor.setInputCloud (cloud);
-	sor.setLeafSize (0.2f, 0.2f, 0.2f);
-	sor.filter (*cloud_filtered);
-
-	cout << "# point: " << cloud_filtered->size() << endl;
-
-	return cloud_filtered;
+	return cloud;// CloudIO::voxel(cloud, 0.2f, 0.2f, 0.2f);
 }
 
 void pp_callback (const pcl::visualization::PointPickingEvent& event, void* args);
@@ -130,8 +122,9 @@ void pp_callback (const pcl::visualization::PointPickingEvent& event, void* args
 		return;
 
 	cout << cloud->points[index].x << " " << cloud->points[index].y << " " << cloud->points[index].z << endl;
-
 }
+
+
 
 
 

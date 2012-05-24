@@ -17,6 +17,7 @@ class ExtractObject{
 
 public:
 	static PointCloudPtr extractPioli(PointCloudPtr cloud);
+	static PointCloudPtr extractPioli2(PointCloudPtr cloud);
 
 	static PointCloudPtr extractCable(PointCloudPtr cloud);
 

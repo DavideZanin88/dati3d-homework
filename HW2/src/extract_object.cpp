@@ -10,27 +10,68 @@ PointCloudPtr ExtractObject::extractPioli(PointCloudPtr cloud){
 
 	cout << "Estraggo pioli" << endl;
 	PointCloudPtr pioli(new PointCloud<PointXYZRGB>);
-	cout << "Segmentazione" << endl;
+
+
+	PointCloud<PointXYZRGB>::Ptr cloud_clean (new PointCloud<PointXYZRGB>);
+	ConditionAnd<PointXYZRGB>::Ptr range_cond (new ConditionAnd<PointXYZRGB> ());
+	range_cond->addComparison(FieldComparison<PointXYZRGB>::ConstPtr
+			(new FieldComparison<PointXYZRGB> ("x", ComparisonOps::GE, -30)));
+	range_cond->addComparison(FieldComparison<PointXYZRGB>::ConstPtr
+			(new FieldComparison<PointXYZRGB> ("x", ComparisonOps::LE, -15)));
+
+	range_cond->addComparison(FieldComparison<PointXYZRGB>::ConstPtr
+			(new FieldComparison<PointXYZRGB> ("y", ComparisonOps::GE, -43)));
+	range_cond->addComparison(FieldComparison<PointXYZRGB>::ConstPtr
+			(new FieldComparison<PointXYZRGB> ("y", ComparisonOps::LE, -37)));
+
+	range_cond->addComparison(FieldComparison<PointXYZRGB>::ConstPtr
+				(new FieldComparison<PointXYZRGB> ("z", ComparisonOps::LE, -7)));
+	ConditionalRemoval<PointXYZRGB> condrem (range_cond);
+	condrem.setInputCloud (cloud);
+	condrem.filter (*cloud_clean);
+
+	for (int i = 0; i < cloud_clean->points.size(); i++){
+		cloud_clean->points[i].r = 0;
+		cloud_clean->points[i].g = 0;
+		cloud_clean->points[i].b = 255;
+	}
+
+
+	CloudIO::visualize(cloud, "cloud", cloud_clean, "zona interesse");
+
+
+//	cout << "Segmentazione" << endl;
 //	PointCloudPtr segmentation = ExtractObject::segmentation(cloud, 1);
+
 	cout << "Clusterizzazione" << endl;
-	vector<PointIndices> cluster_indices = ExtractObject::clusterization(cloud, 0.7, 10, 30);
+	vector<PointIndices> cluster_indices = ExtractObject::clusterization(cloud_clean, 1, 1, 100);
+
+
 
 	cout << "Cerco cluster pioli" << endl;
+	cout << "#cluster: " << cluster_indices.size() << endl;
 	int j = 0;
 	for (vector<PointIndices>::const_iterator it = cluster_indices.begin (); it != cluster_indices.end (); ++it){
 		PointCloudPtr cloud_cluster (new PointCloud<pcl::PointXYZRGB>);
 		for (vector<int>::const_iterator pit = it->indices.begin (); pit != it->indices.end (); pit++)
-			cloud_cluster->points.push_back (cloud->points[*pit]);
+			cloud_cluster->points.push_back (cloud_clean->points[*pit]);
 
 		cloud_cluster->width = cloud_cluster->points.size ();
 		cloud_cluster->height = 1;
 		cloud_cluster->is_dense = true;
+
 
 		for (int i = 0; i < cloud_cluster->width; i++){
 			PointXYZRGB p;
 			p.x = cloud_cluster->at(i).x;
 			p.y = cloud_cluster->at(i).y;
 			p.z = cloud_cluster->at(i).z;
+
+			p.r = 255;
+			p.g = 0;
+			p.b = 0;
+
+
 
 			if (cloud_cluster->width < 30
 					&& p.x > -27 && p.x < -23
@@ -39,7 +80,7 @@ PointCloudPtr ExtractObject::extractPioli(PointCloudPtr cloud){
 				p.r = 0;
 				p.g = 255;
 				p.b = 0;
-				pioli->points.push_back(p);
+//				pioli->points.push_back(p);
 			}
 
 			if (cloud_cluster->width < 30
@@ -49,11 +90,137 @@ PointCloudPtr ExtractObject::extractPioli(PointCloudPtr cloud){
 				p.r = 0;
 				p.g = 255;
 				p.b = 0;
-				pioli->points.push_back(p);
+//				pioli->points.push_back(p);
 			}
+
+			pioli->points.push_back(p);
 		}
 		j++;
 	}
+
+	return pioli;
+}
+
+PointCloudPtr ExtractObject::extractPioli2(PointCloudPtr cloud){
+
+	cout << "Estraggo pioli" << endl;
+	PointCloudPtr pioli(new PointCloud<PointXYZRGB>);
+
+
+	PointCloud<PointXYZRGB>::Ptr cloud_clean (new PointCloud<PointXYZRGB>);
+	ConditionAnd<PointXYZRGB>::Ptr range_cond (new ConditionAnd<PointXYZRGB> ());
+	range_cond->addComparison(FieldComparison<PointXYZRGB>::ConstPtr
+			(new FieldComparison<PointXYZRGB> ("x", ComparisonOps::GE, -30)));
+	range_cond->addComparison(FieldComparison<PointXYZRGB>::ConstPtr
+			(new FieldComparison<PointXYZRGB> ("x", ComparisonOps::LE, -15)));
+
+	range_cond->addComparison(FieldComparison<PointXYZRGB>::ConstPtr
+			(new FieldComparison<PointXYZRGB> ("y", ComparisonOps::GE, -43)));
+	range_cond->addComparison(FieldComparison<PointXYZRGB>::ConstPtr
+			(new FieldComparison<PointXYZRGB> ("y", ComparisonOps::LE, -37)));
+
+	range_cond->addComparison(FieldComparison<PointXYZRGB>::ConstPtr
+				(new FieldComparison<PointXYZRGB> ("z", ComparisonOps::LE, -7)));
+	ConditionalRemoval<PointXYZRGB> condrem (range_cond);
+	condrem.setInputCloud (cloud);
+	condrem.filter (*cloud_clean);
+
+
+
+//	CloudIO::visualize(cloud, "cloud", cloud_clean, "zona interesse");
+
+
+
+
+	pcl::PointCloud<PointXYZRGB>::Ptr cloud_filtered (new pcl::PointCloud<pcl::PointXYZRGB> ());
+	pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients);
+	pcl::PointIndices::Ptr inliers (new pcl::PointIndices);
+	pcl::PointCloud<PointXYZRGB>::Ptr cloud_f (new pcl::PointCloud<pcl::PointXYZRGB> ());
+
+	// Create the segmentation object
+	pcl::SACSegmentation<pcl::PointXYZRGB> seg;
+	// Mandatory
+	seg.setModelType (SACMODEL_PERPENDICULAR_PLANE);
+	seg.setMethodType (SAC_RANSAC);
+	seg.setDistanceThreshold (0.05);
+//	seg.setRadiusLimits(1, 1.5);
+	seg.setAxis(Eigen::Vector3f(0, 0, 1.0));
+	seg.setEpsAngle(3);
+
+	seg.setInputCloud((*cloud_clean).makeShared());
+	seg.segment (*inliers, *coefficients);
+
+	pcl::ExtractIndices<pcl::PointXYZRGB> extract;
+	extract.setInputCloud (cloud_clean);
+	extract.setIndices(inliers);
+	extract.setNegative (false);
+	extract.filter (*pioli);
+
+	for (int i = 0; i < pioli->points.size(); i++){
+		pioli->points[i].r = 255;
+		pioli->points[i].g = 0;
+		pioli->points[i].b = 0;
+	}
+
+
+
+//	cout << "Segmentazione" << endl;
+//	PointCloudPtr segmentation = ExtractObject::segmentation(cloud, 1);
+
+//	cout << "Clusterizzazione" << endl;
+//	vector<PointIndices> cluster_indices = ExtractObject::clusterization(cloud_clean, 1, 1, 100);
+//
+//
+//
+//	cout << "Cerco cluster pioli" << endl;
+//	cout << "#cluster: " << cluster_indices.size() << endl;
+//	int j = 0;
+//	for (vector<PointIndices>::const_iterator it = cluster_indices.begin (); it != cluster_indices.end (); ++it){
+//		PointCloudPtr cloud_cluster (new PointCloud<pcl::PointXYZRGB>);
+//		for (vector<int>::const_iterator pit = it->indices.begin (); pit != it->indices.end (); pit++)
+//			cloud_cluster->points.push_back (cloud_clean->points[*pit]);
+//
+//		cloud_cluster->width = cloud_cluster->points.size ();
+//		cloud_cluster->height = 1;
+//		cloud_cluster->is_dense = true;
+//
+//
+//		for (int i = 0; i < cloud_cluster->width; i++){
+//			PointXYZRGB p;
+//			p.x = cloud_cluster->at(i).x;
+//			p.y = cloud_cluster->at(i).y;
+//			p.z = cloud_cluster->at(i).z;
+//
+//			p.r = 255;
+//			p.g = 0;
+//			p.b = 0;
+//
+//
+//
+//			if (cloud_cluster->width < 30
+//					&& p.x > -27 && p.x < -23
+//					&& p.y > -42 && p.y < -38
+//					&& p.z > -9.5 && p.z < -7.5){
+//				p.r = 0;
+//				p.g = 255;
+//				p.b = 0;
+////				pioli->points.push_back(p);
+//			}
+//
+//			if (cloud_cluster->width < 30
+//					&& p.x > -22 && p.x < -18
+//					&& p.y > -43 && p.y < -39
+//					&& p.z > -9.5 && p.z < -7.5){
+//				p.r = 0;
+//				p.g = 255;
+//				p.b = 0;
+////				pioli->points.push_back(p);
+//			}
+//
+//			pioli->points.push_back(p);
+//		}
+//		j++;
+//	}
 
 	return pioli;
 }

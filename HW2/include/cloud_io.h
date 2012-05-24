@@ -20,9 +20,8 @@ public:
 	 * Carica una point cloud da file ed effettua le seguenti operazioni
 	 * - sposta il centroide a (0, 0, 0)
 	 * - rimuove il tavolo
-	 * - applica un filtro voxel
 	 */
-	static pcl::PointCloud<pcl::PointXYZRGB>::Ptr loadPointCloud(std::string path, bool isRef);
+	static PointCloudPtr loadPointCloud(const std::string& path);
 
 
 	/**
