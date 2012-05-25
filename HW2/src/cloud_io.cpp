@@ -70,7 +70,7 @@ void CloudIO::visualize(PointCloud<PointXYZRGB>::Ptr cloud1, string name1,
 	visualization::PCLVisualizer viewer("PCL Viewer");
 	viewer.setBackgroundColor(0, 0, 0);
 	viewer.addCoordinateSystem(0.1);
-	viewer.addText(name1 + name2, 15, 15);
+	viewer.addText(name1 + "," + name2, 15, 15);
 
 	visualization::PointCloudColorHandlerRGBField<PointXYZRGB> rgb1(cloud1);
 	viewer.addPointCloud<PointXYZRGB> (cloud1, rgb1, name1);
@@ -94,7 +94,7 @@ void CloudIO::visualize(PointCloudPtr cloud1, string name1,
 	visualization::PCLVisualizer viewer("PCL Viewer");
 	viewer.setBackgroundColor(0, 0, 0);
 	viewer.addCoordinateSystem(0.1);
-	viewer.addText(name1 + name2 + name3, 15, 15);
+	viewer.addText(name1 + "," + name2 + "," + name3, 15, 15);
 
 	visualization::PointCloudColorHandlerRGBField<PointXYZRGB> rgb1(cloud1);
 	viewer.addPointCloud<PointXYZRGB> (cloud1, rgb1, name1);

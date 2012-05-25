@@ -49,7 +49,7 @@ FeatureCloudPtr Utils::computeFPFH(PointCloudPtr cloud, PointCloudPtr keypoint){
 	fpfh.setSearchSurface(cloud);
 	fpfh.setNumberOfThreads(4);
 	// NOTA deve essere maggiore del valore messo nel setRadiusSearch del NormalEstimation!!!
-	fpfh.setRadiusSearch (7);
+	fpfh.setRadiusSearch (6.75);
 
 	// Compute the features
 	std::cout << "Calcolo le feature FPFH...";
@@ -77,6 +77,21 @@ PointCloudPtr Utils::computeSIFT(PointCloudPtr cloud){
 	return keypoints_out;
 }
 
+
+void Utils::setColor(PointCloudPtr cloud, char r, char g, char b){
+	for (int i = 0; i < cloud->points.size(); i++){
+		cloud->points[i].r = r;
+		cloud->points[i].g = g;
+		cloud->points[i].b = b;
+	}
+}
+
+
+void Utils::copyTo(const PointCloudPtr src, PointCloudPtr dest){
+	for (int i = 0; i < src->points.size(); i++){
+		dest->points.push_back(src->points[i]);
+	}
+}
 
 
 

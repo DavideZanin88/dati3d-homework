@@ -27,6 +27,11 @@ public:
 
 	static FeatureCloudPtr computeFPFH(PointCloudPtr cloud, PointCloudPtr filtered);
 
+
+	static void setColor(PointCloudPtr cloud, char r, char g, char b);
+
+	static void copyTo(const PointCloudPtr src, PointCloudPtr dest);
+
 };
 
 

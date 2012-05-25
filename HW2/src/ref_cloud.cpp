@@ -38,7 +38,7 @@ PointCloudPtr RefCloud::registration(PointCloudPtr input){
 	PointCloud<PointXYZRGB>::Ptr input_aligned(new PointCloud<PointXYZRGB>);
 	transformPointCloud(*input, *input_aligned, trasfICP*trasfSAC);
 
-	CloudIO::visualize(input_aligned, "final_aligned");
+//	CloudIO::visualize(input_aligned, "final_aligned");
 
 	return input_aligned;
 
@@ -57,49 +57,43 @@ PointCloudPtr RefCloud::alignSAC(PointCloudPtr inputKeypoint, FeatureCloudPtr in
 	sac.setInputTarget(this->keypoint);
 	sac.setTargetFeatures(this->feature);
 
-	sac.setMinSampleDistance(40);			//TODO sperimentare
+	sac.setMinSampleDistance(35);			//TODO sperimentare
 	sac.setMaximumIterations(750);			// un po' con questi
 	//	sac.setMaxCorrespondenceDistance(150);	// parametri
 	sac.setTransformationEpsilon(0.0001);
 
 	sac.align(*aligned);
-	cout << " OK!" << endl;
+	traformation = sac.getFinalTransformation();
 
-	//stampa info sull'alineamento e visualizza
-	cout << " score: " << sac.getFitnessScore() << endl;
-	cout << sac.getFinalTransformation() << endl;
+	cout << " OK! score: " << sac.getFitnessScore() << endl;
 	//	CloudIO::visualize(target, "target", aligned, "aligned");
 
-	traformation = sac.getFinalTransformation();
 	return aligned;
 }
 
 
 PointCloudPtr RefCloud::alignICP(PointCloudPtr alignedSAC, Eigen::Matrix4f& traformation){ //TODO double score
 	//rifinisci l'alineamento usanto icp
-	cout << "Eseguo icp..." << endl;
+	cout << "Eseguo icp...";
 	PointCloudPtr aligned2(new PointCloud<PointXYZRGB>);
 	IterativeClosestPoint<PointXYZRGB, PointXYZRGB> icp;
 	do{
 		icp = IterativeClosestPoint<PointXYZRGB, PointXYZRGB>();
 		icp.setInputCloud(alignedSAC);
 		icp.setInputTarget(this->filtered);
-		icp.setMaxCorrespondenceDistance(150);		//TODO sperimentare!
-		icp.setMaximumIterations(300);
-		icp.setTransformationEpsilon(0.0005);
+		icp.setMaxCorrespondenceDistance(100);		//TODO sperimentare!
+		icp.setMaximumIterations(125);
+		icp.setTransformationEpsilon(0.005);
 		icp.setRANSACOutlierRejectionThreshold(0.3); //-----
 		icp.align(*aligned2);
 		if (icp.getFitnessScore() > 1.5)
 			cout << " ritento " << icp.getFitnessScore() << "\n";
-	}while (icp.getFitnessScore() > 1.5); //TODO if
-	cout << " OK!" << endl;
+	}while (icp.getFitnessScore() > 1.5);
+	traformation = icp.getFinalTransformation(); //TODO if
 
-	//stampa info sull'alineamento e visualizza
-	cout << " score: " << icp.getFitnessScore() << endl;
-	cout << icp.getFinalTransformation() << endl;
+	cout << " OK! score: " << icp.getFitnessScore() << endl;
 //	CloudIO::visualize(target, "target", aligned2, "aligned2");
 
-	traformation = icp.getFinalTransformation();
 	return aligned2;
 }
 
