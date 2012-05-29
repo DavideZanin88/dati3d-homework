@@ -18,7 +18,7 @@ RefCloud::RefCloud(const string& path){
 }
 
 
-PointCloudPtr RefCloud::registration(PointCloudPtr input){
+PointCloudPtr RefCloud::registration(const PointCloudPtr& input) const{
 
 	//esegue un voxel
 	PointCloudPtr filtered = Utils::voxel(input, RefCloud::VOXEL_LEAF_SIZE);
@@ -45,8 +45,8 @@ PointCloudPtr RefCloud::registration(PointCloudPtr input){
 }
 
 
-PointCloudPtr RefCloud::alignSAC(PointCloudPtr inputKeypoint, FeatureCloudPtr inputFeature,
-								 Eigen::Matrix4f& traformation){
+PointCloudPtr RefCloud::alignSAC(const PointCloudPtr& inputKeypoint, const FeatureCloudPtr& inputFeature,
+								 Eigen::Matrix4f& traformation) const{
 
 	//eseue il primo alineamento (basato su feature)
 	cout << "Eseguo SAC...";
@@ -57,44 +57,40 @@ PointCloudPtr RefCloud::alignSAC(PointCloudPtr inputKeypoint, FeatureCloudPtr in
 	sac.setInputTarget(this->keypoint);
 	sac.setTargetFeatures(this->feature);
 
-	sac.setMinSampleDistance(35);			//TODO sperimentare
-	sac.setMaximumIterations(750);			// un po' con questi
-	//	sac.setMaxCorrespondenceDistance(150);	// parametri
+	sac.setMinSampleDistance(35);
+	sac.setMaximumIterations(750);
 	sac.setTransformationEpsilon(0.0001);
 
 	sac.align(*aligned);
 	traformation = sac.getFinalTransformation();
 
 	cout << " OK! score: " << sac.getFitnessScore() << endl;
-	//	CloudIO::visualize(target, "target", aligned, "aligned");
+	//	CloudIO::visualize(target, "target", aligned, "aligned SAC");
 
 	return aligned;
 }
 
 
-PointCloudPtr RefCloud::alignICP(PointCloudPtr alignedSAC, Eigen::Matrix4f& traformation){ //TODO double score
+PointCloudPtr RefCloud::alignICP(const PointCloudPtr& alignedSAC, Eigen::Matrix4f& traformation) const{
 	//rifinisci l'alineamento usanto icp
 	cout << "Eseguo icp...";
-	PointCloudPtr aligned2(new PointCloud<PointXYZRGB>);
+	PointCloudPtr aligned(new PointCloud<PointXYZRGB>);
 	IterativeClosestPoint<PointXYZRGB, PointXYZRGB> icp;
-	do{
-		icp = IterativeClosestPoint<PointXYZRGB, PointXYZRGB>();
-		icp.setInputCloud(alignedSAC);
-		icp.setInputTarget(this->filtered);
-		icp.setMaxCorrespondenceDistance(100);		//TODO sperimentare!
-		icp.setMaximumIterations(125);
-		icp.setTransformationEpsilon(0.005);
-		icp.setRANSACOutlierRejectionThreshold(0.3); //-----
-		icp.align(*aligned2);
-		if (icp.getFitnessScore() > 1.5)
-			cout << " ritento " << icp.getFitnessScore() << "\n";
-	}while (icp.getFitnessScore() > 1.5);
-	traformation = icp.getFinalTransformation(); //TODO if
+	icp = IterativeClosestPoint<PointXYZRGB, PointXYZRGB>();
+	icp.setInputCloud(alignedSAC);
+	icp.setInputTarget(this->filtered);
+
+	icp.setMaxCorrespondenceDistance(100);
+	icp.setMaximumIterations(125);
+	icp.setTransformationEpsilon(0.005);
+	icp.setRANSACOutlierRejectionThreshold(0.3);
+	icp.align(*aligned);
+	traformation = icp.getFinalTransformation();
 
 	cout << " OK! score: " << icp.getFitnessScore() << endl;
-//	CloudIO::visualize(target, "target", aligned2, "aligned2");
+//	CloudIO::visualize(target, "target", aligned, "aligned icp");
 
-	return aligned2;
+	return aligned;
 }
 
 

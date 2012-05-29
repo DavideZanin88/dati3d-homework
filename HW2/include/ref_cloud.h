@@ -32,14 +32,16 @@ public:
 	/**
 	 * Registra la point cloud input sulla point cloud di riferimento
 	 */
-	PointCloudPtr registration(PointCloudPtr input);
+	PointCloudPtr registration(const PointCloudPtr& input) const;
 
 
 private:
-	PointCloudPtr alignSAC(PointCloudPtr inputKeypoint, FeatureCloudPtr inputFeature,
-						   Eigen::Matrix4f& traformation);
+	//Registra la point cloud usando SAC
+	PointCloudPtr alignSAC(const PointCloudPtr& inputKeypoint, const FeatureCloudPtr& inputFeature,
+						   Eigen::Matrix4f& traformation) const;
 
-	PointCloudPtr alignICP(PointCloudPtr alignedSAC, Eigen::Matrix4f& traformation);
+	//Registra la point cloud usando ICP (dopo averla registrata con SAC)
+	PointCloudPtr alignICP(const PointCloudPtr& alignedSAC, Eigen::Matrix4f& traformation) const;
 
 
 private:
@@ -51,7 +53,6 @@ private:
 
 public:
 	static const float VOXEL_LEAF_SIZE = 0.7;
-
 
 
 };

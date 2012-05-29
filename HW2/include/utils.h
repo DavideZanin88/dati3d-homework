@@ -7,6 +7,7 @@
 #include <pcl/features/fpfh_omp.h>
 #include <pcl/filters/voxel_grid.h>
 #include <pcl/keypoints/sift_keypoint.h>
+#include <pcl/filters/conditional_removal.h>
 
 #include "my_datatype.h"
 
@@ -31,6 +32,9 @@ public:
 	static void setColor(PointCloudPtr cloud, char r, char g, char b);
 
 	static void copyTo(const PointCloudPtr src, PointCloudPtr dest);
+
+	static PointCloudPtr conditionFilter(PointCloudPtr cloud, float minX, float maxX,
+										 float minY, float maxY, float minZ, float maxZ);
 
 };
 

@@ -91,7 +91,11 @@ void Utils::copyTo(const PointCloudPtr src, PointCloudPtr dest){
 	for (int i = 0; i < src->points.size(); i++){
 		dest->points.push_back(src->points[i]);
 	}
+	dest->width = dest->points.size ();
+	dest->height = 1;
+	dest->is_dense = true;
 }
+
 
 
 

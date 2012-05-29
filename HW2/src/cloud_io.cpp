@@ -18,34 +18,29 @@ PointCloudPtr CloudIO::loadPointCloud(const string& path){
 	cloud->width = cloud->size();
 	cloud->height = 1;
 
-	//se è la point cloud di riferimento sposta in modo che il centroide si trovi in (0,0,0)
-//	if (isRef){
-		Eigen::Vector4f centroid;
-		compute3DCentroid (*cloud, centroid);
-		PointCloud<PointXYZRGB>::Ptr cloud_xyz_demean (new PointCloud<PointXYZRGB>);
-		demeanPointCloud<PointXYZRGB> (*cloud, centroid, *cloud_xyz_demean);
-		cloud = cloud_xyz_demean;
-//	}
-
-//	cloud = ExtractObject::segmentation(cloud, 0.05);
+	//sposta in modo che il centroide si trovi in (0,0,0)
+	Eigen::Vector4f centroid;
+	compute3DCentroid (*cloud, centroid);
+	PointCloud<PointXYZRGB>::Ptr cloud_xyz_demean (new PointCloud<PointXYZRGB>);
+	demeanPointCloud<PointXYZRGB> (*cloud, centroid, *cloud_xyz_demean);
+	cloud = cloud_xyz_demean;
 
 	//rimuove il tavolo
-	PointCloud<PointXYZRGB>::Ptr cloud_clean (new PointCloud<PointXYZRGB>);
+	PointCloudPtr clean (new PointCloud<PointXYZRGB>);
 	ConditionAnd<PointXYZRGB>::Ptr range_cond (new ConditionAnd<PointXYZRGB> ());
 	range_cond->addComparison(FieldComparison<PointXYZRGB>::ConstPtr
 			(new FieldComparison<PointXYZRGB> ("z", ComparisonOps::LE, 0)));
 	ConditionalRemoval<PointXYZRGB> condrem (range_cond);
 	condrem.setInputCloud (cloud);
-	condrem.filter (*cloud_clean);
-	cloud = cloud_clean;
+	condrem.filter (*clean);
 
-	//applica un filtro voxel
-	return cloud;// CloudIO::voxel(cloud, 0.2f, 0.2f, 0.2f);
+	return clean;
 }
 
-void pp_callback (const pcl::visualization::PointPickingEvent& event, void* args);
+//callback che stampa le coordinate del punto cliccato
+void pp_callback(const visualization::PointPickingEvent& event, void* args);
 
-void CloudIO::visualize(PointCloud<PointXYZRGB>::Ptr cloud, string name){
+void CloudIO::visualize(const PointCloudPtr& cloud, const string& name){
 
 	visualization::PCLVisualizer viewer("PCL Viewer");
 	viewer.setBackgroundColor(0, 0, 0);
@@ -63,8 +58,8 @@ void CloudIO::visualize(PointCloud<PointXYZRGB>::Ptr cloud, string name){
 
 }
 
-void CloudIO::visualize(PointCloud<PointXYZRGB>::Ptr cloud1, string name1,
-						PointCloud<PointXYZRGB>::Ptr cloud2, string name2){
+void CloudIO::visualize(const PointCloudPtr& cloud1, const string& name1,
+						const PointCloudPtr& cloud2, const string& name2){
 
 
 	visualization::PCLVisualizer viewer("PCL Viewer");
@@ -86,9 +81,9 @@ void CloudIO::visualize(PointCloud<PointXYZRGB>::Ptr cloud1, string name1,
 }
 
 
-void CloudIO::visualize(PointCloudPtr cloud1, string name1,
-						PointCloudPtr cloud2, string name2,
-						PointCloudPtr cloud3, string name3){
+void CloudIO::visualize(const PointCloudPtr& cloud1, const string& name1,
+						const PointCloudPtr& cloud2, const string& name2,
+						const PointCloudPtr& cloud3, const string& name3){
 
 
 	visualization::PCLVisualizer viewer("PCL Viewer");
@@ -113,9 +108,7 @@ void CloudIO::visualize(PointCloudPtr cloud1, string name1,
 }
 
 
-void pp_callback (const pcl::visualization::PointPickingEvent& event, void* args){
-	cout << "premuto!" << endl;
-
+void pp_callback (const visualization::PointPickingEvent& event, void* args){
 	PointCloud<PointXYZRGB>::Ptr cloud = *(PointCloud<PointXYZRGB>::Ptr *)args;
 	int index = event.getPointIndex ();
 	if (index == -1)

@@ -3,8 +3,6 @@
 #define EXTRACT_OBJECT_H_
 
 
-#include <pcl/common/common_headers.h>
-
 #include <pcl/segmentation/sac_segmentation.h>
 #include <pcl/filters/extract_indices.h>
 #include <pcl/segmentation/extract_clusters.h>
@@ -16,26 +14,31 @@
 
 class ExtractObject{
 
+
 public:
-	static PointCloudPtr extractPioli(PointCloudPtr cloud);
-	static PointCloudPtr extractPioli2(PointCloudPtr cloud);
+	/** Estrae i pioli dalla point cloud **/
+	static PointCloudPtr extractPioli(const PointCloudPtr& cloud);
 
-	static PointCloudPtr extractCable(PointCloudPtr cloud);
+	/** Estrae il cavo dalla point cloud **/
+	static PointCloudPtr extractCable(const PointCloudPtr& cloud);
 
-	static bool isCableCorrect(PointCloudPtr pioli, PointCloudPtr cable);
-
-	static PointCloudPtr segmentation(PointCloudPtr cloud, double threshold);
+	/** Date la point cloud dei pioli e quella del cavo ritorna true se il cavo è
+	 *  nella posizione corretta **/
+	static bool isCableCorrect(const PointCloudPtr& pioli, const PointCloudPtr& cable);
 
 
 private:
 
+	/** Esegue la clousterizzazione **/
+	static std::vector<pcl::PointIndices> clusterization(const PointCloudPtr& cloud, double tolerance,
+															double min, double max);
 
-	static std::vector<pcl::PointIndices> clusterization(PointCloudPtr cloud, double tolerance, double min, double max);
+	/** Ritorna true se la point cloud è parte del cavo **/
+	static bool isCable(const PointCloudPtr& cluster);
 
-	static bool isCable(PointCloudPtr cluster);
-
-	static bool isPioloSx(PointCloudPtr cloud);
-	static bool isPioloDx(PointCloudPtr cloud);
+	/** Ritorna true se la point cloud è un piolo **/
+	static bool isPioloSx(const PointCloudPtr& cloud);
+	static bool isPioloDx(const PointCloudPtr& cloud);
 
 
 public:
@@ -58,12 +61,12 @@ public:
 	static const float DX_MAX_Z = -6.5;
 
 
-	static const float CABLE_MIN_X = -30;
-	static const float CABLE_MIN_Y = -55;
+	static const float CABLE_MIN_X = -35;
+	static const float CABLE_MIN_Y = -60;
 	static const float CABLE_MIN_Z = -15;
 
-	static const float CABLE_MAX_X = -5;
-	static const float CABLE_MAX_Y = -35;
+	static const float CABLE_MAX_X = 0;
+	static const float CABLE_MAX_Y = -30;
 	static const float CABLE_MAX_Z = -2;
 
 };
