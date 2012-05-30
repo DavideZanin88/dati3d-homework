@@ -34,7 +34,7 @@ PointCloudPtr ExtractObject::extractPioli(const PointCloudPtr& cloud){
 //	CloudIO::visualize(cloud, "cloud", cloud_clean, "zona pioli");
 
 	cout << "Clusterizzazione" << endl;
-	vector<PointIndices> indices = ExtractObject::clusterization(cloud_clean, 0.5, 1, 100);
+	vector<PointIndices> indices = ExtractObject::clusterization(cloud_clean, 0.6, 3, 75);
 
 	cout << "Cerco i cluster dei pioli" << endl;
 	for (vector<PointIndices>::const_iterator it = indices.begin (); it != indices.end (); ++it){
@@ -132,14 +132,14 @@ PointCloudPtr ExtractObject::extractCable(const PointCloudPtr& cloud){
 
 
 	Utils::setColor(cloud_clean, 0, 0, 255);
-	CloudIO::visualize(cloud, "cloud", cloud_clean, "zona interesse cavo");
+//	CloudIO::visualize(cloud, "cloud", cloud_clean, "zona interesse cavo");
 
 	cout << "Estraggo cavo" << endl;
 	PointCloudPtr cable(new PointCloud<PointXYZRGB>);
 
 
 	cout << "Clusterizzazione" << endl;
-	vector<PointIndices> indices = ExtractObject::clusterization(cloud_clean, 0.7, 700, 10000);
+	vector<PointIndices> indices = ExtractObject::clusterization(cloud_clean, 0.7, 700, 3000);
 
 	cout << "Cerco cluster cavo" << endl;
 	for (vector<PointIndices>::const_iterator it = indices.begin (); it != indices.end (); ++it){

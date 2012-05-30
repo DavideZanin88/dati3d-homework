@@ -19,21 +19,21 @@ public:
 
 
 
-	static PointCloudPtr voxel(PointCloudPtr cloud, float lx, float ly, float lz);
-	static PointCloudPtr voxel(PointCloudPtr cloud, float l);
+	static PointCloudPtr voxel(const PointCloudPtr& cloud, float lx, float ly, float lz);
+	static PointCloudPtr voxel(const PointCloudPtr& cloud, float l);
 
 
-	static PointCloudPtr computeSIFT(PointCloudPtr cloud);
+	static PointCloudPtr computeSIFT(const PointCloudPtr& cloud);
 
 
-	static FeatureCloudPtr computeFPFH(PointCloudPtr cloud, PointCloudPtr filtered);
+	static FeatureCloudPtr computeFPFH(const PointCloudPtr& cloud, const PointCloudPtr& filtered);
 
 
-	static void setColor(PointCloudPtr cloud, char r, char g, char b);
+	static void setColor(const PointCloudPtr& cloud, char r, char g, char b);
 
-	static void copyTo(const PointCloudPtr src, PointCloudPtr dest);
+	static void copyTo(const PointCloudPtr& src, const PointCloudPtr& dest);
 
-	static PointCloudPtr conditionFilter(PointCloudPtr cloud, float minX, float maxX,
+	static PointCloudPtr conditionFilter(const PointCloudPtr& cloud, float minX, float maxX,
 										 float minY, float maxY, float minZ, float maxZ);
 
 };

@@ -43,21 +43,21 @@ private:
 
 public:
 
-	static const float SX_MIN_X = -27;
-	static const float SX_MIN_Y = -44;
+	static const float SX_MIN_X = -27.5;
+	static const float SX_MIN_Y = -43.5;
 	static const float SX_MIN_Z = -9.5;
 
-	static const float SX_MAX_X = -22;
-	static const float SX_MAX_Y = -37.5;
+	static const float SX_MAX_X = -21.5;
+	static const float SX_MAX_Y = -37;
 	static const float SX_MAX_Z = -7.5;
 
 
-	static const float DX_MIN_X = -22.5;
-	static const float DX_MIN_Y = -44;
+	static const float DX_MIN_X = -22;
+	static const float DX_MIN_Y = -43.5;
 	static const float DX_MIN_Z = -8.5;
 
-	static const float DX_MAX_X = -17.5;
-	static const float DX_MAX_Y = -38;
+	static const float DX_MAX_X = -17;
+	static const float DX_MAX_Y = -37;
 	static const float DX_MAX_Z = -6.5;
 
 

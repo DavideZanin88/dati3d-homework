@@ -29,7 +29,8 @@ int main(int argc, char **argv){
 		cout << "------------" << endl;
 		cout << "Analizzo la point cloud: " << argv[i] << endl;
 		PointCloudPtr cloud = CloudIO::loadPointCloud(argv[i]);
-		cloud = refCloud.registration(cloud);
+		if (REF_CLOUD_PATH != argv[i])
+			cloud = refCloud.registration(cloud);
 //		CloudIO::visualize(cloud, "registrata");
 
 		PointCloudPtr pioli = ExtractObject::extractPioli(cloud);
@@ -43,7 +44,7 @@ int main(int argc, char **argv){
 			cout << "Risultato: NO" << endl;
 		}
 
-		CloudIO::visualize(cloud, "ref", pioli, "pioli", cable, "cable");
+		CloudIO::visualize(cloud, argv[i], pioli, "pioli", cable, "cable");
 	}
 
 	cout << endl << "Riepilogo dei risultati:" << endl;
