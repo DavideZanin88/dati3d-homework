@@ -9,7 +9,6 @@
 
 #include "my_datatype.h"
 #include "cloud_io.h"
-#include "utils.h"
 
 
 class ExtractObject{
@@ -33,41 +32,30 @@ private:
 	static std::vector<pcl::PointIndices> clusterization(const PointCloudPtr& cloud, double tolerance,
 															double min, double max);
 
-	/** Ritorna true se la point cloud è parte del cavo **/
-	static bool isCable(const PointCloudPtr& cluster);
+	/** Ritorna true se almeno il 70% dei punti di cloud si trova all'interno del
+	 *  parallelepipedo individuato da min e max*/
+	static bool isIn(const PointCloudPtr& cloud, pcl::PointXYZ min, pcl::PointXYZ max);
 
-	/** Ritorna true se la point cloud è un piolo **/
-	static bool isPioloSx(const PointCloudPtr& cloud);
-	static bool isPioloDx(const PointCloudPtr& cloud);
+	/** Imposta il colore dei punti di cloud **/
+	static void setColor(const PointCloudPtr& cloud, char r, char g, char b);
+
+	/** Copia i punti di src in dest **/
+	static void copyTo(const PointCloudPtr& src, const PointCloudPtr& dest);
 
 
 public:
 
-	static const float SX_MIN_X = -27.5;
-	static const float SX_MIN_Y = -43.5;
-	static const float SX_MIN_Z = -9.5;
+	/** Coordinate zona in cui cercare piolo sx **/
+	static const pcl::PointXYZ PSX_MIN;
+	static const pcl::PointXYZ PSX_MAX;
 
-	static const float SX_MAX_X = -21.5;
-	static const float SX_MAX_Y = -37;
-	static const float SX_MAX_Z = -7.5;
+	/** Coordinate zona in cui cercare piolo dx **/
+	static const pcl::PointXYZ PDX_MIN;
+	static const pcl::PointXYZ PDX_MAX;
 
-
-	static const float DX_MIN_X = -22;
-	static const float DX_MIN_Y = -43.5;
-	static const float DX_MIN_Z = -8.5;
-
-	static const float DX_MAX_X = -17;
-	static const float DX_MAX_Y = -37;
-	static const float DX_MAX_Z = -6.5;
-
-
-	static const float CABLE_MIN_X = -35;
-	static const float CABLE_MIN_Y = -60;
-	static const float CABLE_MIN_Z = -15;
-
-	static const float CABLE_MAX_X = 0;
-	static const float CABLE_MAX_Y = -30;
-	static const float CABLE_MAX_Z = -2;
+	/** Coordinate zona in cui cercare il cavo **/
+	static const pcl::PointXYZ CABLE_MIN;
+	static const pcl::PointXYZ CABLE_MAX;
 
 };
 

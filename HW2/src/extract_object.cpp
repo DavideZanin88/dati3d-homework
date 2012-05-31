@@ -6,6 +6,16 @@ using namespace std;
 using namespace pcl;
 
 
+const PointXYZ ExtractObject::PSX_MIN(-27.5, -43.5, -9.5);
+const PointXYZ ExtractObject::PSX_MAX(-21.5, -37, -7.5);
+
+const PointXYZ ExtractObject::PDX_MIN(-22, -43.5, -8.5);
+const PointXYZ ExtractObject::PDX_MAX(-17, -37, -6.5);
+
+const PointXYZ ExtractObject::CABLE_MIN(-35, -60, -15);
+const PointXYZ ExtractObject::CABLE_MAX(0, -30, -2);
+
+
 PointCloudPtr ExtractObject::extractPioli(const PointCloudPtr& cloud){
 
 	cout << "Estraggo pioli" << endl;
@@ -30,7 +40,7 @@ PointCloudPtr ExtractObject::extractPioli(const PointCloudPtr& cloud){
 	condrem.setInputCloud (cloud);
 	condrem.filter (*cloud_clean);
 
-//	Utils::setColor(cloud_clean, 0, 0, 255);
+//	ExtractObject::setColor(cloud_clean, 0, 0, 255);
 //	CloudIO::visualize(cloud, "cloud", cloud_clean, "zona pioli");
 
 	cout << "Clusterizzazione" << endl;
@@ -46,65 +56,29 @@ PointCloudPtr ExtractObject::extractPioli(const PointCloudPtr& cloud){
 		cloud_cluster->height = 1;
 		cloud_cluster->is_dense = true;
 
-		if (ExtractObject::isPioloSx(cloud_cluster) || ExtractObject::isPioloDx(cloud_cluster)){
-			Utils::setColor(cloud_cluster, 0, 255, 0);
-			Utils::copyTo(cloud_cluster, pioli);
+		if (ExtractObject::isIn(cloud_cluster, PSX_MIN, PSX_MAX)
+				|| ExtractObject::isIn(cloud_cluster, PDX_MIN, PDX_MAX)){
+			ExtractObject::setColor(cloud_cluster, 0, 255, 0);
+			ExtractObject::copyTo(cloud_cluster, pioli);
 		}/*else{
-			Utils::setColor(cloud_cluster, 255, 255, 0);
-			Utils::copyTo(cloud_cluster, pioli);
+			ExtractObject::setColor(cloud_cluster, 255, 255, 0);
+			ExtractObject::copyTo(cloud_cluster, pioli);
 		}*/
 	}
 
 	//********************
 //	PointXYZRGB p;
-//	p.x = SX_MIN_X; p.y = SX_MIN_Y; p.z = SX_MIN_Z;
+//	p.x = PSX_MIN.x ; p.y = PSX_MIN.y; p.z = PSX_MIN.z;
 //	p.r = 0; p.g = 0; p.b = 255; pioli->push_back(p);
 //
-//	p.x = SX_MAX_X; p.y = SX_MIN_Y; p.z = SX_MIN_Z;
-//	p.r = 0; p.g = 0; p.b = 255; pioli->push_back(p);
-//
-//	p.x = SX_MAX_X; p.y = SX_MAX_Y; p.z = SX_MIN_Z;
-//	p.r = 0; p.g = 0; p.b = 255; pioli->push_back(p);
-//
-//	p.x = SX_MIN_X; p.y = SX_MAX_Y; p.z = SX_MIN_Z;
-//	p.r = 0; p.g = 0; p.b = 255; pioli->push_back(p);
-//
-//	p.x = SX_MIN_X; p.y = SX_MIN_Y; p.z = SX_MAX_Z;
-//	p.r = 0; p.g = 0; p.b = 255; pioli->push_back(p);
-//
-//	p.x = SX_MAX_X; p.y = SX_MIN_Y; p.z = SX_MAX_Z;
-//	p.r = 0; p.g = 0; p.b = 255; pioli->push_back(p);
-//
-//	p.x = SX_MAX_X; p.y = SX_MAX_Y; p.z = SX_MAX_Z;
-//	p.r = 0; p.g = 0; p.b = 255; pioli->push_back(p);
-//
-//	p.x = SX_MIN_X; p.y = SX_MAX_Y; p.z = SX_MAX_Z;
+//	p.x = PSX_MAX.x ; p.y = PSX_MAX.y; p.z = PSX_MAX.z;
 //	p.r = 0; p.g = 0; p.b = 255; pioli->push_back(p);
 //
 //
-//	//dx
-//	p.x = DX_MIN_X; p.y = DX_MIN_Y; p.z = DX_MIN_Z;
+//	p.x = PDX_MIN.x ; p.y = PDX_MIN.y; p.z = PDX_MIN.z;
 //	p.r = 0; p.g = 255; p.b = 255; pioli->push_back(p);
 //
-//	p.x = DX_MAX_X; p.y = DX_MIN_Y; p.z = DX_MIN_Z;
-//	p.r = 0; p.g = 255; p.b = 255; pioli->push_back(p);
-//
-//	p.x = DX_MAX_X; p.y = DX_MAX_Y; p.z = DX_MIN_Z;
-//	p.r = 0; p.g = 255; p.b = 255; pioli->push_back(p);
-//
-//	p.x = DX_MIN_X; p.y = DX_MAX_Y; p.z = DX_MIN_Z;
-//	p.r = 0; p.g = 255; p.b = 255; pioli->push_back(p);
-//
-//	p.x = DX_MIN_X; p.y = DX_MIN_Y; p.z = DX_MAX_Z;
-//	p.r = 0; p.g = 255; p.b = 255; pioli->push_back(p);
-//
-//	p.x = DX_MAX_X; p.y = DX_MIN_Y; p.z = DX_MAX_Z;
-//	p.r = 0; p.g = 255; p.b = 255; pioli->push_back(p);
-//
-//	p.x = DX_MAX_X; p.y = DX_MAX_Y; p.z = DX_MAX_Z;
-//	p.r = 0; p.g = 255; p.b = 255; pioli->push_back(p);
-//
-//	p.x = DX_MIN_X; p.y = DX_MAX_Y; p.z = DX_MAX_Z;
+//	p.x = PDX_MAX.x ; p.y = PDX_MAX.y; p.z = PDX_MAX.z;
 //	p.r = 0; p.g = 255; p.b = 255; pioli->push_back(p);
 
 	//********************
@@ -131,7 +105,7 @@ PointCloudPtr ExtractObject::extractCable(const PointCloudPtr& cloud){
 	condrem.filter (*cloud_clean);
 
 
-	Utils::setColor(cloud_clean, 0, 0, 255);
+//	ExtractObject::setColor(cloud_clean, 0, 0, 255);
 //	CloudIO::visualize(cloud, "cloud", cloud_clean, "zona interesse cavo");
 
 	cout << "Estraggo cavo" << endl;
@@ -143,108 +117,49 @@ PointCloudPtr ExtractObject::extractCable(const PointCloudPtr& cloud){
 
 	cout << "Cerco cluster cavo" << endl;
 	for (vector<PointIndices>::const_iterator it = indices.begin (); it != indices.end (); ++it){
-		PointCloudPtr cloud_cluster (new PointCloud<pcl::PointXYZRGB>);
+		PointCloudPtr cluster (new PointCloud<pcl::PointXYZRGB>);
 
 		for (vector<int>::const_iterator pit = it->indices.begin (); pit != it->indices.end (); pit++){
-			cloud_cluster->points.push_back (cloud_clean->points[*pit]);
+			cluster->points.push_back (cloud_clean->points[*pit]);
 		}
-		cloud_cluster->width = cloud_cluster->points.size ();
-		cloud_cluster->height = 1;
-		cloud_cluster->is_dense = true;
+		cluster->width = cluster->points.size ();
+		cluster->height = 1;
+		cluster->is_dense = true;
 
-		if (ExtractObject::isCable(cloud_cluster)){
-			Utils::setColor(cloud_cluster, 255, 0, 0);
-			Utils::copyTo(cloud_cluster, cable);
+		if (ExtractObject::isIn(cluster, CABLE_MIN, CABLE_MAX)){
+			ExtractObject::setColor(cluster, 255, 0, 0);
+			ExtractObject::copyTo(cluster, cable);
 		}/*else{
-			Utils::setColor(cloud_cluster, 255*rand(), 255*rand(), 255*rand());
-			Utils::copyTo(cloud_cluster, cable);
+			ExtractObject::setColor(cloud_cluster, 255*rand(), 255*rand(), 255*rand());
+			ExtractObject::copyTo(cloud_cluster, cable);
 		}*/
 	}
 
 
 	//********************
-//	PointXYZRGB p;
-//	p.x = CABLE_MIN_X; p.y = CABLE_MIN_Y; p.z = CABLE_MIN_Z;
-//	p.r = 0; p.g = 0; p.b = 255; cable->push_back(p);
+//		PointXYZRGB p;
+//		p.x = CABLE_MIN.x ; p.y = CABLE_MIN.y; p.z = CABLE_MIN.z;
+//		p.r = 0; p.g = 0; p.b = 255; cable->push_back(p);
 //
-//	p.x = CABLE_MAX_X; p.y = CABLE_MIN_Y; p.z = CABLE_MIN_Z;
-//	p.r = 255; p.g = 0; p.b = 255; cable->push_back(p);
-//
-//	p.x = CABLE_MAX_X; p.y = CABLE_MAX_Y; p.z = CABLE_MIN_Z;
-//	p.r = 255; p.g = 0; p.b = 255; cable->push_back(p);
-//
-//	p.x = CABLE_MIN_X; p.y = CABLE_MAX_Y; p.z = CABLE_MIN_Z;
-//	p.r = 255; p.g = 0; p.b = 255; cable->push_back(p);
-//
-//	p.x = CABLE_MIN_X; p.y = CABLE_MIN_Y; p.z = CABLE_MAX_Z;
-//	p.r = 255; p.g = 0; p.b = 255; cable->push_back(p);
-//
-//	p.x = CABLE_MAX_X; p.y = CABLE_MIN_Y; p.z = CABLE_MAX_Z;
-//	p.r = 255; p.g = 0; p.b = 255; cable->push_back(p);
-//
-//	p.x = CABLE_MAX_X; p.y = CABLE_MAX_Y; p.z = CABLE_MAX_Z;
-//	p.r = 255; p.g = 0; p.b = 255; cable->push_back(p);
-//
-//	p.x = CABLE_MIN_X; p.y = CABLE_MAX_Y; p.z = CABLE_MAX_Z;
-//	p.r = 255; p.g = 0; p.b = 255; cable->push_back(p);
-	/*****************/
+//		p.x = CABLE_MAX.x ; p.y = CABLE_MAX.y; p.z = CABLE_MAX.z;
+//		p.r = 0; p.g = 0; p.b = 255; cable->push_back(p);
+	//******************/
 
 	return cable;
 }
 
 
-bool ExtractObject::isCable(const PointCloudPtr& cluster){
-
-	int inlier = 0;
-	for (int i = 0; i <cluster->width; i++){
-		PointXYZRGB p;
-		p.x = cluster->at(i).x;
-		p.y = cluster->at(i).y;
-		p.z = cluster->at(i).z;
-
-		if (p.x > CABLE_MIN_X && p.x < CABLE_MAX_X
-				&& p.y > CABLE_MIN_Y && p.y < CABLE_MAX_Y
-				&& p.z > CABLE_MIN_Z && p.z < CABLE_MAX_Z){
-			inlier++;
-		}
-	}
-	cout << "cable inlier: " << inlier << " su " << cluster->width << " " << (float)inlier/cluster->points.size() << endl;
-	return (float)inlier/cluster->width > 0.7;
-
-}
-
-
-bool ExtractObject::isPioloSx(const PointCloudPtr& cloud){
-
+bool ExtractObject::isIn(const PointCloudPtr& cloud, PointXYZ min, PointXYZ max){
 	int inlier = 0;
 	for (int i = 0; i < cloud->points.size(); i++){
 		PointXYZRGB p = cloud->points[i];
-		if (p.x > SX_MIN_X && p.x < SX_MAX_X
-				&& p.y > SX_MIN_Y && p.y < SX_MAX_Y
-				&& p.z > SX_MIN_Z && p.z < SX_MAX_Z){
+		if (p.x > min.x && p.x < max.x &&
+			p.y > min.y && p.y < max.y &&
+			p.z > min.z && p.z < max.z){
 			inlier++;
 		}
 	}
-	cout << "pioloSx inlier: " << inlier << " su " << cloud->width << " " << (float)inlier/cloud->points.size() << endl;
 	return (float)inlier/cloud->points.size() > 0.7;
-
-}
-
-
-bool ExtractObject::isPioloDx(const PointCloudPtr& cloud){
-
-	int inlier = 0;
-	for (int i = 0; i < cloud->points.size(); i++){
-		PointXYZRGB p = cloud->points[i];
-		if (p.x > -22 && p.x < -16
-				&& p.y > -42 && p.y < -36
-				&& p.z > -8.5 && p.z < -6.5){
-			inlier ++;
-		}
-	}
-	cout << "piolodx inlier: " << inlier << " su " << cloud->width << " " << (float)inlier/cloud->points.size() << endl;
-	return (float)inlier/cloud->points.size() > 0.7;
-
 }
 
 
@@ -307,3 +222,23 @@ bool ExtractObject::isCableCorrect(const PointCloudPtr& pioli, const PointCloudP
 	cout << "Punti passanti per i pioli: " << inliers << " su " << cable->points.size() << endl;
 	return inliers > 60;
 }
+
+
+void ExtractObject::setColor(const PointCloudPtr& cloud, char r, char g, char b){
+	for (int i = 0; i < cloud->points.size(); i++){
+		cloud->points[i].r = r;
+		cloud->points[i].g = g;
+		cloud->points[i].b = b;
+	}
+}
+
+
+void ExtractObject::copyTo(const PointCloudPtr& src, const PointCloudPtr& dest){
+	for (int i = 0; i < src->points.size(); i++){
+		dest->points.push_back(src->points[i]);
+	}
+	dest->width = dest->points.size ();
+	dest->height = 1;
+	dest->is_dense = true;
+}
+

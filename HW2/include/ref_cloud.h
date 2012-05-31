@@ -8,12 +8,15 @@
 #define REFCLOUD_H_
 
 #include <pcl/common/common.h>
+#include <pcl/filters/voxel_grid.h>
 #include <pcl/registration/ia_ransac.h>
 #include <pcl/registration/icp.h>
+#include <pcl/features/normal_3d_omp.h>
+#include <pcl/features/fpfh_omp.h>
+#include <pcl/keypoints/sift_keypoint.h>
 
 #include "my_datatype.h"
 #include "cloud_io.h"
-#include "utils.h"
 
 
 class RefCloud{
@@ -28,6 +31,11 @@ public:
 	 */
 	RefCloud(const std::string& path);
 
+	/**
+	 * Applica un filtro voxel
+	 */
+	static PointCloudPtr filterVoxel(const PointCloudPtr& cloud, float lx, float ly, float lz);
+	static PointCloudPtr filterVoxel(const PointCloudPtr& cloud, float l);
 
 	/**
 	 * Registra la point cloud input sulla point cloud di riferimento
@@ -43,6 +51,12 @@ private:
 	//Registra la point cloud usando ICP (dopo averla registrata con SAC)
 	PointCloudPtr alignICP(const PointCloudPtr& alignedSAC, Eigen::Matrix4f& traformation) const;
 
+	//Calcola i keypoint SIFT
+	static PointCloudPtr computeSIFT(const PointCloudPtr& cloud);
+
+	//Calcolo la feature FPFH
+	static FeatureCloudPtr computeFPFH(const PointCloudPtr& cloud, const PointCloudPtr& filtered);
+
 
 private:
 	PointCloudPtr 	cloud;		//cloud originale
@@ -52,7 +66,7 @@ private:
 
 
 public:
-	static const float VOXEL_LEAF_SIZE = 0.7;
+	static const float VOXEL_LEAF_SIZE = 0.9;
 
 
 };
