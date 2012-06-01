@@ -220,7 +220,7 @@ bool ExtractObject::isCableCorrect(const PointCloudPtr& pioli, const PointCloudP
 	}
 
 	cout << "Punti passanti per i pioli: " << inliers << " su " << cable->points.size() << endl;
-	return inliers > 60;
+	return inliers > 55;
 }
 
 

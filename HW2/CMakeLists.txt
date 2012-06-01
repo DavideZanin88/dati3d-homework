@@ -10,6 +10,5 @@ include_directories(${PCL_INCLUDE_DIRS} include)
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
-add_executable (hw2 src/main.cpp src/cloud_io.cpp src/ref_cloud.cpp src/utils.cpp
-				    src/extract_object.cpp)
+add_executable (hw2 src/main.cpp src/cloud_io.cpp src/ref_cloud.cpp src/extract_object.cpp)
 target_link_libraries(hw2 ${PCL_LIBRARIES})

@@ -98,9 +98,9 @@ PointCloudPtr RefCloud::alignICP(const PointCloudPtr& alignedSAC, Eigen::Matrix4
 	icp.setInputTarget(this->filtered);
 
 	icp.setMaxCorrespondenceDistance(40);
-	icp.setMaximumIterations(60);
+	icp.setMaximumIterations(50);
 	icp.setTransformationEpsilon(0.01);
-	icp.setRANSACOutlierRejectionThreshold(5);
+	icp.setRANSACOutlierRejectionThreshold(50);
 	icp.align(*aligned);
 	traformation = icp.getFinalTransformation();
 
