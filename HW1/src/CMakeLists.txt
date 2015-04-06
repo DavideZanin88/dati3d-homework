@@ -9,7 +9,7 @@ find_package(Boost REQUIRED)
 
 set(Boost_REALPATH ON)
 
-include_directories(${OPENCV_INCLUDE_DIRS} ${PCL_INCLUDE_DIRS} include)
+include_directories(${OPENCV_INCLUDE_DIRS} ${PCL_INCLUDE_DIRS} ../include)
 link_directories(${OPENCV_LIBRARY_DIRS} ${PCL_LIBRARY_DIRS})
 add_definitions(${OPENCV_DEFINITIONS} ${PCL_DEFINITIONS})
 
